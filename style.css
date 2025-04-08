@@ -1,11 +1,28 @@
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+  .header{
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  .header-logo {
+    width: 40px;
+    height: 40px;
+  }
+  .content {
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    padding: 20px;
   }
 
   .container {
@@ -65,4 +82,19 @@ body {
 
   .bottom-text a:hover {
     text-decoration: underline;
+  }
+
+  @media (min-width: 768px) {
+    .container {
+      padding: 50px 40px;
+    }
+    h1 {
+      font-size: 28px;
+    }
+    .btn {
+      padding: 14px;
+    }
+    .header {
+      padding: 15px 40px;
+    }
   }
