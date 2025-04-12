@@ -32,7 +32,10 @@ app.use((req, res, next) => {
   req.anonymousId = req.headers['anonymous-id'] || null;
   next();
 });
-
+// Serve index.html for the root path
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
 // Auto-save data every 5 minutes
 setInterval(() => {
   fs.writeFileSync('data.json', JSON.stringify(data));
