@@ -158,7 +158,7 @@
       }
       
       // Success - redirect to home
-      window.location.href = "home.html";
+      window.location.href = "index.html";
       // Inside loginUser() function after successful login:
 if (userData.password === password) {
   // Generate anonymous ID if none exists
@@ -167,7 +167,7 @@ if (userData.password === password) {
       'anon-' + Math.random().toString(36).substr(2, 9));
   }
   localStorage.setItem('isLoggedIn', 'true'); // Add this line
-  window.location.href = "home.html"; // Redirect to home
+  window.location.href = "index.html"; // Redirect to home
 }
     });
     
