@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Search Confessions</title>
+  <style>
+    .search-container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    #searchBox {
+      width: 100%;
+      padding: 12px;
+      border-radius: 20px;
+      border: 1px solid #ddd;
+    }
+    .tag-cloud {
+      margin: 20px 0;
+    }
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      margin: 5px;
+      background: #f0f0f0;
+      border-radius: 15px;
+      cursor: pointer;
+    }
+    .search-result {
+      background: white;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <!-- Use your existing navbar -->
+    <span style="float: right;">
+      <a href="home.html" style="color: white;">Home</a>
+    </span>
+  </div>
+
+  <div class="search-container">
+    <input 
+      id="searchBox" 
+      type="text" 
+      placeholder="Search confessions or #tags..."
+      oninput="searchConfessions()"
+    >
+    
+    <div class="tag-cloud" id="tagCloud">
+      <h3>Popular Tags:</h3>
+      <!-- Tags will load here -->
+    </div>
+
+    <div id="searchResults">
+      <!-- Results appear here -->
+    </div>
+  </div>
+
+  <script>
+    // Load popular tags
+    fetch('/api/tags')
+      .then(res => res.json())
+      .then(({ tags }) => {
+        const container = document.getElementById('tagCloud');
+        tags.forEach(([tag, count]) => {
+          const tagEl = document.createElement('span');
+          tagEl.className = 'tag';
+          tagEl.textContent = `#${tag} (${count})`;
+          tagEl.onclick = () => {
+            document.getElementById('searchBox').value = `#${tag}`;
+            searchConfessions();
+          };
+          container.appendChild(tagEl);
+        });
+      });
+
+    // Search function
+    function searchConfessions() {
+      const query = document.getElementById('searchBox').value.trim();
+      if (!query) return;
+
+      fetch(`/api/search?query=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(({ data }) => {
+          const container = document.getElementById('searchResults');
+          container.innerHTML = data.length 
+            ? data.map(tweet => `
+                <div class="search-result">
+                  <p>${tweet.text}</p>
+                  ${tweet.tag ? `<div>Tag: #${tweet.tag}</div>` : ''}
+                  <div class="tweet-footer">
+                    <span>❤️ ${tweet.likes} likes</span>
+                    <span>🗨️ ${tweet.comments} comments</span>
+                  </div>
+                </div>
+              `).join('')
+            : '<p>No matching confessions found</p>';
+        });
+    }
+  </script>
+</body>
+</html>

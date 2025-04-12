@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Anonymous Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f8fa;
+    }
+
+    .profile-header {
+      background-color: plum;
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px;
+      position: relative;
+    }
+
+    .back-button {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 5px 10px;
+      border: 2px solid white;
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+
+    .back-button:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .profile-title {
+      text-align: center;
+      margin: 0;
+    }
+
+    .confession-card {
+      background: white;
+      margin: 15px auto;
+      padding: 15px;
+      max-width: 600px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+    }
+
+    .stat-box {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      width: 40%;
+    }
+
+    .message-box {
+      text-align: center;
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 10px;
+      background: plum;
+      color: white;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+
+    #profileContent {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Profile Header with Back Button -->
+  <div class="profile-header">
+    <a href="home.html" class="back-button">← Back</a>
+    <h1 class="profile-title">Your Secret Profile</h1>
+  </div>
+
+  <!-- No Confession Message (only shows if no confessions) -->
+  <div id="noProfileMessage" class="message-box" style="display: none;">
+    <h2>🔒 No Confessions Yet</h2>
+    <p>You haven't posted any confessions yet, but your profile is ready!</p>
+    <div class="action-buttons">
+      <a href="confess.html" class="btn">Create Your First Confession</a>
+    </div>
+  </div>
+
+  <!-- Profile Content -->
+  <div id="profileContent">
+    <div class="profile-header">
+      <h1>👤 Anonymous User</h1>
+      <p>Your secret ID: <span id="anonymousId"></span></p>
+    </div>
+
+    <!-- Confess Button -->
+    <div style="text-align: center; margin-top: 10px;">
+      <a href="confess.html" class="btn">➕ New Confession</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat-box">
+        <h3 id="confessionCount">0</h3>
+        <p>Confessions</p>
+      </div>
+      <div class="stat-box">
+        <h3 id="receivedLikes">0</h3>
+        <p>Likes Received</p>
+      </div>
+    </div>
+
+    <h2 style="text-align: center;">Your Confessions</h2>
+    <div id="confessionsContainer"></div>
+
+    <div class="profile-section">
+      <h2 style="text-align: center;">📑 Your Bookmarks</h2>
+      <div id="bookmarksContainer"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let anonymousId = localStorage.getItem('anonymousId');
+      
+      if (!anonymousId) {
+        anonymousId = 'anon-' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('anonymousId', anonymousId);
+      }
+
+      document.getElementById('anonymousId').textContent = anonymousId;
+      document.getElementById('profileContent').style.display = 'block';
+      loadProfile();
+      loadBookmarks();
+    });
+   
+    async function loadProfile() {
+      try {
+        const anonymousId = localStorage.getItem('anonymousId');
+        const response = await fetch(`/api/profile/${anonymousId}`);
+
+        if (!response.ok) throw new Error("Profile not found");
+
+        const data = await response.json();
+
+        document.getElementById('confessionCount').textContent = data.confessions.length;
+        document.getElementById('receivedLikes').textContent = data.receivedLikes || 0;
+
+        const container = document.getElementById('confessionsContainer');
+
+        if (data.confessions.length === 0) {
+          document.getElementById('noProfileMessage').style.display = 'block';
+        } else {
+          container.innerHTML = data.confessions.map(confession => `
+            <div class="confession-card" id="confession-${confession.id}">
+              <p>${confession.text}</p>
+              ${confession.tag ? `<div><small>Tag: #${confession.tag}</small></div>` : ''}
+              <small>Posted on ${new Date(confession.created_at).toLocaleDateString()}</small>
+              <div><small>❤️ ${data.likes[confession.id]?.length || 0} likes</small></div>
+              <button class="btn" onclick="deleteConfession('${confession.id}')">🗑️ Delete</button>
+            </div>
+          `).join('');
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    }
+
+    async function loadBookmarks() {
+      try {
+        const anonymousId = localStorage.getItem('anonymousId');
+        const response = await fetch('/api/bookmarks', {
+          headers: { 'Anonymous-ID': anonymousId }
+        });
+
+        const { data: bookmarks } = await response.json();
+        const container = document.getElementById('bookmarksContainer');
+
+        container.innerHTML = bookmarks?.length
+          ? bookmarks.map(tweet => `
+              <div class="confession-card">
+                <p>${tweet.text}</p>
+                <small>Posted on ${new Date(tweet.created_at).toLocaleDateString()}</small>
+              </div>
+            `).join('')
+          : '<p class="message-box">No bookmarks yet</p>';
+      } catch (error) {
+        console.error("Error loading bookmarks:", error);
+      }
+    }
+
+    async function deleteConfession(confessionId) {
+      const anonymousId = localStorage.getItem('anonymousId');
+
+      if (confirm("Are you sure you want to delete this confession?")) {
+        try {
+          const response = await fetch(`/api/confessions/${confessionId}`, {
+            method: 'DELETE',
+            headers: { 'Anonymous-ID': anonymousId }
+          });
+
+          if (!response.ok) throw new Error("Failed to delete");
+
+          // Remove from DOM
+          document.getElementById(`confession-${confessionId}`).remove();
+        } catch (err) {
+          alert("Error deleting confession.");
+          console.error(err);
+        }
+      }
+    }
+  </script>
+</body>
+</html>

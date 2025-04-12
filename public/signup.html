@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Arcana Sign Up</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 320px;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="date"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    label {
+      font-size: 14px;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #444;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #222;
+    }
+
+    .bottom-text {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .bottom-text a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .bottom-text a:hover {
+      text-decoration: underline;
+    }
+
+    .error {
+      color: red;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Sign Up</h2>
+    <div id="errorMsg" class="error"></div>
+    <form onsubmit="return validateAndStore()">
+      <label for="email">Email</label>
+      <input type="email" id="email" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" required>
+
+      <label for="confirm">Confirm Password</label>
+      <input type="password" id="confirm" required>
+
+      <label for="birthdate">Date of Birth</label>
+      <input type="date" id="birthdate" required>
+
+      <button type="submit">Create Account</button>
+    </form>
+
+    <div class="bottom-text">
+      Already have an account? <a href="login.html">Sign in</a>
+    </div>
+  </div>
+
+  <script>
+    function calculateAge(birthdateStr) {
+      const today = new Date();
+      const birthdate = new Date(birthdateStr);
+      let age = today.getFullYear() - birthdate.getFullYear();
+      const m = today.getMonth() - birthdate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) {
+        age--;
+      }
+      return age;
+    }
+
+    function validateAndStore() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm').value;
+      const birthdate = document.getElementById('birthdate').value;
+      const errorMsg = document.getElementById('errorMsg');
+
+      errorMsg.textContent = "";
+
+      if (password !== confirm) {
+        errorMsg.textContent = "Passwords do not match.";
+        return false;
+      }
+
+      if (!birthdate) {
+        errorMsg.textContent = "Please enter your birthdate.";
+        return false;
+      }
+
+      const age = calculateAge(birthdate);
+      if (age < 16) {
+        errorMsg.textContent = "You must be at least 16 years old to sign up.";
+        return false;
+      }
+
+      // Save user data in localStorage
+      const userData = {
+        email: email,
+        password: password,
+        birthdate: birthdate
+      };
+
+      localStorage.setItem("user_" + email, JSON.stringify(userData));
+      alert("Account created successfully! You can now log in.");
+
+      //Redirect to login page
+      window.location.href = "login.html";
+      return false;
+    }
+  </script>
+
+</body>
+</html>

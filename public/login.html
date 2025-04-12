@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arcana Login</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 16px;
+      transition: border 0.3s;
+    }
+
+    input:focus {
+      border-color: #1DA1F2;
+      outline: none;
+    }
+
+    label {
+      font-size: 14px;
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #1DA1F2;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #0d8ddb;
+    }
+
+    .bottom-text {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .bottom-text a {
+      color: #1DA1F2;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .bottom-text a:hover {
+      text-decoration: underline;
+    }
+
+    .error {
+      color: #e74c3c;
+      font-size: 14px;
+      margin-bottom: 15px;
+      text-align: center;
+      padding: 10px;
+      background-color: #fdecea;
+      border-radius: 5px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Welcome Back</h2>
+    <div id="errorMsg" class="error"></div>
+    
+    <form id="loginForm">
+      <label for="email">Email</label>
+      <input type="email" id="email" required placeholder="your@email.com">
+      
+      <label for="password">Password</label>
+      <input type="password" id="password" required placeholder="••••••••">
+      
+      <button type="submit">Log In</button>
+    </form>
+    
+    <div class="bottom-text">
+      Don't have an account? <a href="signup.html">Sign up</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const errorMsg = document.getElementById("errorMsg");
+      
+      // Reset error
+      errorMsg.style.display = 'none';
+      
+      // Validate inputs
+      if (!email || !password) {
+        showError("Please fill in all fields");
+        return;
+      }
+      
+      // Check user exists
+      const storedUser = localStorage.getItem("user_" + email);
+      if (!storedUser) {
+        showError("Account not found");
+        return;
+      }
+      
+      // Verify password
+      const userData = JSON.parse(storedUser);
+      if (userData.password !== password) {
+        showError("Incorrect password");
+        return;
+      }
+      
+      // Generate anonymous ID if none exists
+      if (!localStorage.getItem('anonymousId')) {
+        localStorage.setItem('anonymousId', 
+          'anon-' + Math.random().toString(36).substr(2, 9));
+      }
+      
+      // Success - redirect to home
+      window.location.href = "home.html";
+      // Inside loginUser() function after successful login:
+if (userData.password === password) {
+  // Generate anonymous ID if none exists
+  if (!localStorage.getItem('anonymousId')) {
+    localStorage.setItem('anonymousId', 
+      'anon-' + Math.random().toString(36).substr(2, 9));
+  }
+  localStorage.setItem('isLoggedIn', 'true'); // Add this line
+  window.location.href = "home.html"; // Redirect to home
+}
+    });
+    
+    function showError(message) {
+      const errorMsg = document.getElementById("errorMsg");
+      errorMsg.textContent = message;
+      errorMsg.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
+
